@@ -1,9 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import sys
 import glob
-from PyQt4 import QtGui, QtCore
+from qtpy.QtCore import *
+from qtpy.QtGui import *
+from qtpy.QtWidgets import *
 #import pyqtgraph as pg
 #import numpy as np
 import serial
@@ -53,7 +55,7 @@ class mySerial(serial.Serial):
         leneol = len(eol)
         line = bytearray()
         while True:
-            c = super().read(1)
+            c = self.read(1)
             if c:
                 line += c
                 if line[-leneol:] == eol:
@@ -65,10 +67,10 @@ class mySerial(serial.Serial):
     
 ########################################################################
 # Modify QCheckBox and add possibility to disable user modification
-class MyQCheckBox(QtGui.QCheckBox):
+class MyQCheckBox(QCheckBox):
     
     def __init__(self, *args, **kwargs):
-        QtGui.QCheckBox.__init__(self, *args, **kwargs)        
+        QCheckBox.__init__(self, *args, **kwargs)
         self.is_modifiable = True
         self.clicked.connect( self.value_change_slot )
 
@@ -540,51 +542,51 @@ class ComSerial:
 
 
 ########################################################################
-class myMainContent(QtGui.QWidget):
+class myMainContent(QWidget):
     
     def __init__(self, parent):
-        QtGui.QWidget.__init__(self, parent)
+        QWidget.__init__(self, parent)
         
         self.initUI()
         self.mySerial = ComSerial()
         
     def initUI(self):
-        self.timer = QtCore.QTimer(self)
+        self.timer = QTimer(self)
         self.timer.timeout.connect(self.refreshGUI)
         
-        self.ComboBoxPort = QtGui.QComboBox()
+        self.ComboBoxPort = QComboBox()
         self.ComboBoxPort.setMaximumWidth(240)
         self.RefreshComboBoxPort()
-        self.ButtonRefreshPort = QtGui.QPushButton("R")
+        self.ButtonRefreshPort = QPushButton("R")
         self.ButtonRefreshPort.clicked.connect(self.RefreshComboBoxPort)
         self.ButtonRefreshPort.setFixedWidth(50)
-        self.ComboBoxAddress = QtGui.QComboBox()
+        self.ComboBoxAddress = QComboBox()
         self.ComboBoxAddress.addItems(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])
         self.ComboBoxAddress.setCurrentIndex(6)
         self.ComboBoxAddress.setMaximumWidth(60)
-        self.ComboBoxSpeed = QtGui.QComboBox()
+        self.ComboBoxSpeed = QComboBox()
         self.ComboBoxSpeed.addItems(["1200","2400","4800","9600","19200"])
         self.ComboBoxSpeed.setCurrentIndex(3)
         self.ComboBoxSpeed.setMaximumWidth(90)
-        self.ButtonConnect = QtGui.QPushButton("Connect")
+        self.ButtonConnect = QPushButton("Connect")
         self.ButtonConnect.setCheckable(True)
         self.ButtonConnect.setMaximumWidth(150)
         self.ButtonConnect.clicked.connect(self.onActivatedButtonConnect)  
-        self.LabelDeviceIDN = QtGui.QLabel('IDN')        
-        self.LabelDeviceREV = QtGui.QLabel('SW')  
-        self.LabelDeviceSN = QtGui.QLabel('SN')  
-        self.LabelDeviceDATE = QtGui.QLabel('DATE') 
+        self.LabelDeviceIDN = QLabel('IDN')
+        self.LabelDeviceREV = QLabel('SW')
+        self.LabelDeviceSN = QLabel('SN')
+        self.LabelDeviceDATE = QLabel('DATE') 
                 
-        self.LineEditDeviceIDN = QtGui.QLineEdit()
+        self.LineEditDeviceIDN = QLineEdit()
         self.LineEditDeviceIDN.setReadOnly(True)
-        self.LineEditDeviceREV = QtGui.QLineEdit()
+        self.LineEditDeviceREV = QLineEdit()
         self.LineEditDeviceREV.setReadOnly(True)
-        self.LineEditDeviceSN = QtGui.QLineEdit()
+        self.LineEditDeviceSN = QLineEdit()
         self.LineEditDeviceSN.setReadOnly(True)
-        self.LineEditDeviceDATE = QtGui.QLineEdit()
+        self.LineEditDeviceDATE = QLineEdit()
         self.LineEditDeviceDATE.setReadOnly(True)
         
-        self.LabelFault = QtGui.QLabel('Fault Register')       
+        self.LabelFault = QLabel('Fault Register')
         self.CheckBoxACFail = MyQCheckBox("AC Fail")
         self.CheckBoxACFail.setModifiable(False)
         self.CheckBoxOTP = MyQCheckBox("OTP")
@@ -600,88 +602,88 @@ class myMainContent(QtGui.QWidget):
         self.CheckBoxSO  = MyQCheckBox("SO")
         self.CheckBoxSO.setModifiable(False)
                 
-        self.VoltageLCD = QtGui.QLCDNumber()
+        self.VoltageLCD = QLCDNumber()
         self.VoltageLCD.setDigitCount(5)
         self.VoltageLCD.display(" 0.00")
         self.VoltageLCD.setMinimumHeight(50)
         self.VoltageLCD.setMinimumWidth(125)
-        self.VoltageLCD.setSegmentStyle(QtGui.QLCDNumber.Flat)
-        self.VoltageLCD.setFrameStyle(QtGui.QFrame.NoFrame)
-        self.LabelVoltageLCD= QtGui.QLabel('Voltage')
-        self.SpinBoxSetVoltage = QtGui.QDoubleSpinBox()   
+        self.VoltageLCD.setSegmentStyle(QLCDNumber.Flat)
+        self.VoltageLCD.setFrameStyle(QFrame.NoFrame)
+        self.LabelVoltageLCD= QLabel('Voltage')
+        self.SpinBoxSetVoltage = QDoubleSpinBox()
         self.SpinBoxSetVoltage.setMinimum(0.00)
         self.SpinBoxSetVoltage.setMaximum(50.00)
         self.SpinBoxSetVoltage.setSuffix(" V")
         self.SpinBoxSetVoltage.valueChanged.connect(self.onChangedSpinBoxSetVoltage)
-        self.ButtonSetVoltage = QtGui.QPushButton("-")
+        self.ButtonSetVoltage = QPushButton("-")
         self.ButtonSetVoltage.setMaximumWidth(70)
         self.ButtonSetVoltage.clicked.connect(self.onActivatedButtonSetVoltage)  
         self.ButtonSetVoltage.setEnabled(False)
 
-        self.CurrentLCD = QtGui.QLCDNumber()
+        self.CurrentLCD = QLCDNumber()
         self.CurrentLCD.setDigitCount(5)
         self.CurrentLCD.display(" 0.00")
         self.CurrentLCD.setMinimumHeight(50) 
         self.CurrentLCD.setMinimumWidth(125)
-        self.CurrentLCD.setSegmentStyle(QtGui.QLCDNumber.Flat)
-        self.CurrentLCD.setFrameStyle(QtGui.QFrame.NoFrame)
-        self.LabelCurrentLCD = QtGui.QLabel('Current')
-        self.SpinBoxSetCurrent = QtGui.QDoubleSpinBox()  
+        self.CurrentLCD.setSegmentStyle(QLCDNumber.Flat)
+        self.CurrentLCD.setFrameStyle(QFrame.NoFrame)
+        self.LabelCurrentLCD = QLabel('Current')
+        self.SpinBoxSetCurrent = QDoubleSpinBox()
         self.SpinBoxSetCurrent.setMinimum(0.00)
         self.SpinBoxSetCurrent.setMaximum(30.00)
         self.SpinBoxSetCurrent.setSuffix(" A")
         self.SpinBoxSetCurrent.valueChanged.connect(self.onChangedSpinBoxSetCurrent)
-        self.ButtonSetCurrent = QtGui.QPushButton("-")
+        self.ButtonSetCurrent = QPushButton("-")
         self.ButtonSetCurrent.setMaximumWidth(70)
         self.ButtonSetCurrent.clicked.connect(self.onActivatedButtonSetCurrent)  
         self.ButtonSetCurrent.setEnabled(False)
         
-        self.PowerLCD = QtGui.QLCDNumber()
+        self.PowerLCD = QLCDNumber()
         self.PowerLCD.setDigitCount(6)
         self.PowerLCD.display("   0.0")
         self.PowerLCD.setMinimumHeight(50) 
         self.PowerLCD.setMinimumWidth(150)
-        self.PowerLCD.setSegmentStyle(QtGui.QLCDNumber.Flat)
-        self.PowerLCD.setFrameStyle(QtGui.QFrame.NoFrame)    
-        self.LabelPowerLCD = QtGui.QLabel('Power')
-        self.ButtonSwitchOUT = QtGui.QPushButton("OFF")
+        self.PowerLCD.setSegmentStyle(QLCDNumber.Flat)
+        self.PowerLCD.setFrameStyle(QFrame.NoFrame)
+        self.LabelPowerLCD = QLabel('Power')
+        self.ButtonSwitchOUT = QPushButton("OFF")
         self.ButtonSwitchOUT.setCheckable(True)
         self.ButtonSwitchOUT.clicked.connect(self.onActivatedButtonSwitchOUT)  
    
-        self.LabelSetOVP = QtGui.QLabel('OVP')         
-        self.SpinBoxSetOVP = QtGui.QDoubleSpinBox()  
+        self.LabelSetOVP = QLabel('OVP')
+        self.SpinBoxSetOVP = QDoubleSpinBox()
         self.SpinBoxSetOVP.setMinimum(5.00)
         self.SpinBoxSetOVP.setMaximum(57.00)
         self.SpinBoxSetOVP.setSuffix(" V")
         self.SpinBoxSetOVP.valueChanged.connect(self.onChangedSpinBoxSetOVP)
-        self.ButtonSetOVP = QtGui.QPushButton("-")
+        self.ButtonSetOVP = QPushButton("-")
         self.ButtonSetOVP.setMinimumWidth(70)
         self.ButtonSetOVP.clicked.connect(self.onActivatedButtonSetOVP)
         self.ButtonSetOVP.setEnabled(False)
         #self.ButtonSetOVP.setMaximumWidth(40)
 
-        self.LabelSetUVL = QtGui.QLabel('UVL')         
-        self.SpinBoxSetUVL = QtGui.QDoubleSpinBox()  
+        self.LabelSetUVL = QLabel('UVL')
+        self.SpinBoxSetUVL = QDoubleSpinBox()
         self.SpinBoxSetUVL.setMinimum(0.00)
         self.SpinBoxSetUVL.setMaximum(47.50)
         self.SpinBoxSetUVL.setSuffix(" V")
         self.SpinBoxSetUVL.valueChanged.connect(self.onChangedSpinBoxSetUVL)
-        self.ButtonSetUVL = QtGui.QPushButton("-")
+        self.ButtonSetUVL = QPushButton("-")
         self.ButtonSetUVL.setMinimumWidth(70)
         self.ButtonSetUVL.clicked.connect(self.onActivatedButtonSetUVL)
         self.ButtonSetUVL.setEnabled(False)
         #self.ButtonSetUVL.setMaximumWidth(40)
    
-        self.LabelSetFBD = QtGui.QLabel('FBD')         
-        self.SpinBoxSetFBD = QtGui.QSpinBox()  
+        self.LabelSetFBD = QLabel('FBD')
+        self.SpinBoxSetFBD = QSpinBox()
         self.SpinBoxSetFBD.setMinimum(0)
         self.SpinBoxSetFBD.setMaximum(255)
         #self.SpinBoxSetFBD.setSuffix(" s")
         self.SpinBoxSetFBD.valueChanged.connect(self.onChangedSpinBoxSetFBD)
-        self.ButtonSetFBD = QtGui.QPushButton("-")
+        self.ButtonSetFBD = QPushButton("-")
         self.ButtonSetFBD.setMinimumWidth(70)
         self.ButtonSetFBD.setEnabled(False)
-        self.ButtonSwitchFBD = QtGui.QPushButton("OFF")
+        self.ButtonSwitchFBD = QPushButton("OFF")
         self.ButtonSwitchFBD.setCheckable(True)
         self.ButtonSwitchFBD.clicked.connect(self.onActivatedButtonSwitchFBD)
         self.ButtonSwitchFBD.setMinimumWidth(70)
@@ -690,54 +692,54 @@ class myMainContent(QtGui.QWidget):
         
        
         
-        self.LabelTitel = QtGui.QLabel('TDK LAMBDA GENESYS')
-        font = QtGui.QFont()
+        self.LabelTitel = QLabel('TDK LAMBDA GENESYS')
+        font = QFont()
         font.setFamily('Arial')
         font.setFixedPitch(True)
         font.setPointSize(15)
         self.LabelTitel.setFont(font)
-        #self.LabelTitel.setAlignment(QtCore.Qt.AlignVCenter)
+        #self.LabelTitel.setAlignment(Qt.AlignVCenter)
         
-        LayoutVoltage = QtGui.QGridLayout()
+        LayoutVoltage = QGridLayout()
         #LayoutVoltage.addWidget(self.LabelVoltageLCD,   0, 0)
         LayoutVoltage.addWidget(self.VoltageLCD,        1, 0, 1, 2)
         LayoutVoltage.addWidget(self.SpinBoxSetVoltage, 2, 0)
         LayoutVoltage.addWidget(self.ButtonSetVoltage,  2, 1)
         
-        GroupBoxVoltage = QtGui.QGroupBox("Voltage")
+        GroupBoxVoltage = QGroupBox("Voltage")
         GroupBoxVoltage.setLayout(LayoutVoltage)
         GroupBoxVoltage.setMinimumWidth(220)
         
-        LayoutCurrent = QtGui.QGridLayout()
+        LayoutCurrent = QGridLayout()
         #LayoutCurrent.addWidget(self.LabelCurrentLCD,   0, 0)
         LayoutCurrent.addWidget(self.CurrentLCD,        1, 0, 1, 2)
         LayoutCurrent.addWidget(self.SpinBoxSetCurrent, 2, 0)
         LayoutCurrent.addWidget(self.ButtonSetCurrent,  2, 1)
 
-        GroupBoxCurrent = QtGui.QGroupBox("Current")
+        GroupBoxCurrent = QGroupBox("Current")
         GroupBoxCurrent.setLayout(LayoutCurrent) 
         GroupBoxCurrent.setMinimumWidth(220)
 
-        LayoutPower = QtGui.QGridLayout()
+        LayoutPower = QGridLayout()
         #LayoutPower.addWidget(self.LabelPowerLCD,   0, 0)
         LayoutPower.addWidget(self.PowerLCD,        1, 0)
         LayoutPower.addWidget(self.ButtonSwitchOUT, 2, 0)   
         
-        GroupBoxPower = QtGui.QGroupBox("Power")
+        GroupBoxPower = QGroupBox("Power")
         GroupBoxPower.setLayout(LayoutPower) 
         GroupBoxPower.setMinimumWidth(220)        
 
-        LayoutPort = QtGui.QHBoxLayout()
+        LayoutPort = QHBoxLayout()
         LayoutPort.addWidget(self.ComboBoxPort)
         LayoutPort.addWidget(self.ButtonRefreshPort)
         LayoutPort.addWidget(self.ComboBoxSpeed)
         LayoutPort.addWidget(self.ComboBoxAddress)
         LayoutPort.addWidget(self.ButtonConnect)
 
-        GroupBoxPort = QtGui.QGroupBox("Connection")
+        GroupBoxPort = QGroupBox("Connection")
         GroupBoxPort.setLayout(LayoutPort)
         
-        LayoutDevice = QtGui.QGridLayout() 
+        LayoutDevice = QGridLayout() 
         LayoutDevice.addWidget(self.LabelDeviceIDN,     0, 0)
         LayoutDevice.addWidget(self.LabelDeviceREV,     1, 0)
         LayoutDevice.addWidget(self.LabelDeviceSN,      2, 0)
@@ -747,10 +749,10 @@ class myMainContent(QtGui.QWidget):
         LayoutDevice.addWidget(self.LineEditDeviceSN,   2, 1)
         LayoutDevice.addWidget(self.LineEditDeviceDATE, 3, 1)
 
-        GroupBoxDevice = QtGui.QGroupBox("Device")
+        GroupBoxDevice = QGroupBox("Device")
         GroupBoxDevice.setLayout(LayoutDevice)
         
-        LayoutFault = QtGui.QGridLayout()
+        LayoutFault = QGridLayout()
         #LayoutFault.addWidget(self.LabelFault,     0, 0)
         LayoutFault.addWidget(self.CheckBoxACFail, 1, 0)
         LayoutFault.addWidget(self.CheckBoxOTP,    2, 0)
@@ -760,10 +762,10 @@ class myMainContent(QtGui.QWidget):
         LayoutFault.addWidget(self.CheckBoxENA,    3, 1)
         LayoutFault.addWidget(self.CheckBoxSO,     4, 1)
         
-        GroupBoxFault = QtGui.QGroupBox("Fault")
+        GroupBoxFault = QGroupBox("Fault")
         GroupBoxFault.setLayout(LayoutFault)
         
-        LayoutProtection = QtGui.QGridLayout()
+        LayoutProtection = QGridLayout()
         LayoutProtection.addWidget(self.LabelSetOVP,     0, 1)
         LayoutProtection.addWidget(self.SpinBoxSetOVP,   0, 2)
         LayoutProtection.addWidget(self.ButtonSetOVP,    0, 3)
@@ -775,7 +777,7 @@ class myMainContent(QtGui.QWidget):
         #LayoutProtection.addWidget(self.ButtonSetFBD,    2, 3)
         LayoutProtection.addWidget(self.ButtonSwitchFBD, 2, 3)    
 
-        GroupBoxProtection = QtGui.QGroupBox("Protection")
+        GroupBoxProtection = QGroupBox("Protection")
         GroupBoxProtection.setLayout(LayoutProtection)
         
         
@@ -817,12 +819,12 @@ class myMainContent(QtGui.QWidget):
 #        self.p1.getViewBox().sigResized.connect(self.updateViews)
 #        
 #        
-#        LayoutPlot = QtGui.QVBoxLayout()
+#        LayoutPlot = QVBoxLayout()
 #        LayoutPlot.addWidget(pw)
-#        GroupBoxPlot = QtGui.QGroupBox("Plot")
+#        GroupBoxPlot = QGroupBox("Plot")
 #        GroupBoxPlot.setLayout(LayoutPlot)        
         
-        LayoutMain = QtGui.QGridLayout(self)
+        LayoutMain = QGridLayout(self)
         #LayoutMain.setColumnMinimumWidth(1,5)
         #LayoutMain.setColumnMinimumWidth(3,5)
         #LayoutMain.setRowMinimumHeight(3,5)
@@ -830,7 +832,7 @@ class myMainContent(QtGui.QWidget):
         #LayoutMain.setColumnStretch(1,1)
         #LayoutMain.setColumnStretch(0,1)
         
-        LayoutMain.addWidget(self.LabelTitel,    0, 0, 1, 3, alignment = QtCore.Qt.AlignCenter)     
+        LayoutMain.addWidget(self.LabelTitel,    0, 0, 1, 3, alignment = Qt.AlignCenter)
         LayoutMain.addWidget(GroupBoxPort,       1, 0, 1, 3)  
         LayoutMain.addWidget(GroupBoxDevice,     2, 0) 
         LayoutMain.addWidget(GroupBoxFault,      2, 1) 
@@ -1053,35 +1055,35 @@ class myMainContent(QtGui.QWidget):
             self.ComboBoxPort.addItem(port)  
    
     def showdialogErrorConnectionDevice(self):
-        #msg = QtGui.QMessageBox()
-        #msg.setIcon(QtGui.QMessageBox.Critical)
+        #msg = QMessageBox()
+        #msg.setIcon(QMessageBox.Critical)
         #msg.setWindowTitle("Error")
         #msg.setText("No answer form Device.\nCheck connection and address.")
-        #msg.setStandardButtons(QtGui.QMessageBox.Ok)
+        #msg.setStandardButtons(QMessageBox.Ok)
         #retval = msg.exec_()
-        QtGui.QMessageBox.critical(self, 'Error',
-            "No answer form Device.\nCheck connection and address.", QtGui.QMessageBox.Ok)
+        QMessageBox.critical(self, 'Error',
+            "No answer form Device.\nCheck connection and address.", QMessageBox.Ok)
 ########################################################################
 
 
 
 ########################################################################
 
-class myMainWindow(QtGui.QMainWindow):                                  
+class myMainWindow(QMainWindow):
     def __init__(self):
         super(myMainWindow, self).__init__()
         self.initUI()
 
     def initUI(self):               
         #if sys.platform=="darwin":
-        #    QtGui.qt_mac_set_native_menubar(False)
+        #    qt_mac_set_native_menubar(False)
             
-        exitAction = QtGui.QAction(QtGui.QIcon('pics/exit.png'), '&Exit', self)
+        exitAction = QAction(QIcon('pics/exit.png'), '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit/Terminate application')
         exitAction.triggered.connect(self.close)
         
-        aboutAction = QtGui.QAction(QtGui.QIcon('pics/about.png'), '&About', self)
+        aboutAction = QAction(QIcon('pics/about.png'), '&About', self)
         aboutAction.setStatusTip('About application')
         aboutAction.triggered.connect(self.aboutBox)
 
@@ -1107,22 +1109,22 @@ class myMainWindow(QtGui.QMainWindow):
         
         
     def aboutBox(self):
-        QtGui.QMessageBox.information(self, 'About Genesys Project',
-            "Genesys Project by flyglas\nVersion: 0.6b", QtGui.QMessageBox.Ok)
+        QMessageBox.information(self, 'About Genesys Project',
+            "Genesys Project by flyglas\nVersion: 0.6b", QMessageBox.Ok)
         
     def closeEvent(self, event):
-        print("event")
-        reply = QtGui.QMessageBox.question(self, 'Message',
-            "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        # print("event")
+        reply = QMessageBox.question(self, 'Message',
+            "Are you sure to quit?", QMessageBox.Yes, QMessageBox.No)
 
-        if reply == QtGui.QMessageBox.Yes:
+        if reply == QMessageBox.Yes:
             event.accept()
         else:
             event.ignore()         
 
         
 def main():
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     ex = myMainWindow()
     ex.show()
     sys.exit(app.exec_())
